@@ -9,29 +9,25 @@ if "KIVY_GL_BACKEND" in os.environ:
 
 from Screens import Menu, Levels, Level, Game
 
-lvls = Levels(name="lvls")
-grid = lvls.grid_levels
+lvls = []
 
 from random import choice
 
 import tomllib
 
-def load_levels_from_file(toml_path, grid):
-    # Зчитуємо TOML у бінарному режимі ("rb")
+def CreateLvlsScreen(toml_path,name="main_lvls"):
     with open(toml_path, "rb") as f:
         data = tomllib.load(f)
-
+    screen = Levels(name=name)
+    grid = screen.grid_levels
     for l_data in data.get("levels", []):
-        width = l_data.get("width")
-        height = l_data.get("height")
-        num_id = l_data.get("id")
+        width = l_data.get("cols",3)
+        height = l_data.get("rows",3)
+        num_id = l_data.get("id",1)
         lab_text = l_data.get("lab_text", "")
 
         # Створення екземпляра Level
-        if width is not None and height is not None:
-            lvl = Level(width, height, num_id, lab_text)
-        else:
-            lvl = Level(lab_text=lab_text)
+        lvl = Level(width, height, num_id, lab_text)
 
         pz = lvl.content["pazls"]
         st = lvl.content["stations"]
@@ -77,9 +73,10 @@ def load_levels_from_file(toml_path, grid):
 
         # Додавання готового рівня до сітки
         grid.add_widget(lvl)
+    lvls.append(screen)
 
 # Замість ручного створення всіх 8 рівнів:
-load_levels_from_file("suns/Main.toml", grid)
+CreateLvlsScreen("suns/Main.toml")
 
 class WidgetsApp(App):
 	def build(self):
@@ -87,7 +84,9 @@ class WidgetsApp(App):
 		sm.current_content = None 
 		sm.current_box = None
 		sm.add_widget(Menu(name="menu"))
-		sm.add_widget(lvls)
+		for l in lvls:
+			sm.add_widget(l)
+		
 		sm.add_widget(Game(name="game"))
 		
 		return sm

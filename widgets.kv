@@ -1,0 +1,108 @@
+#:import from_hex kivy.utils.get_color_from_hex
+#:import colormap kivy.utils.colormap
+<Back@Button>:
+	text:"Back"
+	size_hint: (None, None)
+	size: (100, 100)
+	pos_hint: {'left': 0.05, 'top': 0.95}
+	background_color: (0.2, 0.8, 0.8, 1)
+<Box>:
+	canvas:
+		# Фон
+		Color:
+			rgba: self.bg_color
+		Rectangle:
+			pos: self.pos
+			size: self.size
+
+		# Нижняя сторона (Down)
+		Color:
+			rgba: self.ramkaDown
+		Line:
+			points: [self.x, self.y, self.right, self.y]
+			width: dp(1)
+
+		# Верхняя сторона (Up)
+		Color:
+			rgba: self.ramkaUp
+		Line:
+			points: [self.x, self.top, self.right, self.top]
+			width: dp(1)
+
+		# Левая сторона (Left)
+		Color:
+			rgba: self.ramkaLeft
+		Line:
+			points: [self.x, self.y, self.x, self.top]
+			width: dp(1)
+
+		# Правая сторона (Right)
+		Color:
+			rgba: self.ramkaRight
+		Line:
+			points: [self.right, self.y, self.right, self.top]
+			width: dp(1)
+
+
+
+
+
+<Menu>:
+	BoxLayout:
+		orientation: "vertical"
+		padding: "20dp"
+		spacing: "20dp"
+
+		canvas.before:
+			Color:
+				#1, 1, 1, 1 - для фону картинки
+				rgba: colormap['blue']  
+
+			Rectangle:
+				pos: self.pos
+				size: self.size
+				# source: "image/background.avif"
+		Button:
+			text:"play"
+			on_press:
+				root.manager.transition.direction = 'left'
+				root.manager.current = 'main_lvls'
+		Button:
+			text:"exit"
+			on_press: root.exit()
+
+<Game>:
+	ScatterPlane:
+		do_rotate: False
+		id: MainPlane
+
+		canvas.before:
+			Color:
+				rgba: 1, 1, 1, 0.4
+			Rectangle:
+				pos: -2000,-2000
+				size: 5000,5000
+				source: "assets/fon_game.jpg"
+
+	Button:
+		text: "СТАРТ"
+		size_hint: (None, None)
+		size: (150, 150)
+		pos_hint: {'right': 0.95, 'y': 0.05}
+		background_color: (0.2, 0.8, 0.2, 1)
+		on_release: root.start_train()
+	Back:
+		on_release:
+			root.manager.transition.direction = 'right'
+			root.manager.current = 'main_lvls'
+			
+		
+	Label:
+		id : input
+		text: "input"
+		size_hint: (None, None)
+		size: (150, 60)
+		pos_hint: {'right': 0.5, 'y': 0.5}
+	
+		
+		
