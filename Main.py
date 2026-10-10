@@ -7,15 +7,15 @@ if "KIVY_GL_BACKEND" in os.environ:
 	Window.size = (1000, 1000)
 	del os.environ["KIVY_GL_BACKEND"]
 
-from Screens import Menu, Levels, Level, Game
-
+from Screens import Menu, Game
+from lvls import Levels, Level
 lvls = []
 
 from random import choice
 
 import tomllib
 
-def CreateLvlsScreen(toml_path,name="main_lvls"):
+def CreateLvlsScreen(toml_path="suns/build-in/Main.toml",name="main_lvls"):
     with open(toml_path, "rb") as f:
         data = tomllib.load(f)
     screen = Levels(name=name)
@@ -27,56 +27,59 @@ def CreateLvlsScreen(toml_path,name="main_lvls"):
         lab_text = l_data.get("lab_text", "")
 
         # Створення екземпляра Level
-        lvl = Level(width, height, num_id, lab_text)
+        lvl = Level(num_id, lab_text)
+        lvl.cols = width
+        lvl.height = height
 
-        pz = lvl.content["pazls"]
-        st = lvl.content["stations"]
+        lvl.content = l_data
 
-        # 1. Заповнення пазлів
-        for pazl in l_data.get("pazls", []):
-            for i in range(0,pazl["count"]):
-                pz.append(pazl["type"])
+        # pz = lvl.content["pazls"]
+        # st = lvl.content["stations"]
 
-        # 2. Заповнення станцій/блоків
-        stations_data = l_data.get("stations", {})
-        for pos_str, val in stations_data.items():
-            pos = eval(pos_str)
-            st[pos] = val
+        # # 1. Заповнення пазлів
+        # for pazl in l_data.get("pazls", []):
+        #     for i in range(0,pazl["count"]):
+        #         pz.append(pazl["type"])
 
-        # 3. Налаштування потяга
-        trains_data = l_data.get("trains", [])
-        if trains_data and len(lvl.content["trains"]) > 0:
-            tr = lvl.content["trains"][0]
-            t_info = trains_data[0]
+        # # 2. Заповнення станцій/блоків
+        # stations_data = l_data.get("stations", {})
+        # for pos_str, val in stations_data.items():
+        #     pos = eval(pos_str)
+        #     st[pos] = val
 
-            if "start" in t_info:
-                if "pos" in t_info["start"]:
-                    tr["start"]["pos"] = tuple(t_info["start"]["pos"])
-                if "side" in t_info["start"]:
-                    tr["start"]["side"] = t_info["start"]["side"]
+        # # 3. Налаштування потяга
+        # trains_data = l_data.get("trains", [])
+        # if trains_data and len(lvl.content["trains"]) > 0:
+        #     tr = lvl.content["trains"][0]
+        #     t_info = trains_data[0]
 
-            if "end" in t_info:
-                if "pos" in t_info["end"]:
-                    tr["end"]["pos"] = tuple(t_info["end"]["pos"])
-                elif "pos_options" in t_info["end"]:
-                    idx = choice(range(len(t_info["end"]["pos_options"])))
-                    tr["end"]["pos"] = tuple(t_info["end"]["pos_options"][idx])
-                    if "side_options" in t_info["end"]:
-                        tr["end"]["side"] = t_info["end"]["side_options"][idx]
+        #     if "start" in t_info:
+        #         if "pos" in t_info["start"]:
+        #             tr["start"]["pos"] = tuple(t_info["start"]["pos"])
+        #         if "side" in t_info["start"]:
+        #             tr["start"]["side"] = t_info["start"]["side"]
 
-                if "side" in t_info["end"]:
-                    tr["end"]["side"] = t_info["end"]["side"]
+        #     if "end" in t_info:
+        #         if "pos" in t_info["end"]:
+        #             tr["end"]["pos"] = tuple(t_info["end"]["pos"])
+        #         elif "pos_options" in t_info["end"]:
+        #             idx = choice(range(len(t_info["end"]["pos_options"])))
+        #             tr["end"]["pos"] = tuple(t_info["end"]["pos_options"][idx])
+        #             if "side_options" in t_info["end"]:
+        #                 tr["end"]["side"] = t_info["end"]["side_options"][idx]
 
-            if "points" in t_info:
-                for pt in t_info["points"]:
-                    tr["points"].append(tuple(pt))
+        #         if "side" in t_info["end"]:
+        #             tr["end"]["side"] = t_info["end"]["side"]
 
-        # Додавання готового рівня до сітки
-        grid.add_widget(lvl)
+        #     if "points" in t_info:
+        #         for pt in t_info["points"]:
+        #             tr["points"].append(tuple(pt))
+
+        # # Додавання готового рівня до сітки
+        # grid.add_widget(lvl)
     lvls.append(screen)
 
-# Замість ручного створення всіх 8 рівнів:
-CreateLvlsScreen("suns/Main.toml")
+CreateLvlsScreen()
 
 class WidgetsApp(App):
 	def build(self):
